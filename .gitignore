@@ -1,3 +1,5 @@
-prod.env
-dev.env
-local.env
+*.env
+!sample.env
+
+*.md
+!README.md
