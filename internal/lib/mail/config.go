@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/smtp"
 
-	"github.com/prabhatlabs/internals/lib/env"
+	"github.com/prabhatlabs/internal/lib/env"
 )
 
 func getAuth() smtp.Auth {

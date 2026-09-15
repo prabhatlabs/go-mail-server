@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/smtp"
 
-	"github.com/prabhatlabs/internals/lib/env"
+	"github.com/prabhatlabs/internal/lib/env"
 )
 
 func SendMail(recipient string, subject string, body string) {

@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
-	"github.com/prabhatlabs/internals/lib/env"
-	"github.com/prabhatlabs/internals/lib/mail"
+	"github.com/prabhatlabs/internal/lib/env"
+	"github.com/prabhatlabs/internal/lib/mail"
 )
 
 func main() {
