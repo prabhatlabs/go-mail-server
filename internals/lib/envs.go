@@ -18,7 +18,7 @@ type EnvsType struct {
 var Envs *EnvsType
 
 func LoadEnv() error {
-	viper.AddConfigPath("/.")
+	viper.AddConfigPath(".")
 	viper.SetConfigName("prod")
 	viper.SetConfigType("env")
 
