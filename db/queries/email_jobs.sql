@@ -48,3 +48,13 @@ WHERE status = 'processing'
   AND locked_at < now() - INTERVAL '10 minutes'
 ORDER BY locked_at ASC
 LIMIT $1;
+
+-- name: ListJobs :many
+SELECT * FROM email_jobs
+WHERE ($1::text IS NULL OR status = $1)
+ORDER BY created_at DESC
+LIMIT $2 OFFSET $3;
+
+-- name: CountJobs :one
+SELECT COUNT(*) FROM email_jobs
+WHERE ($1::text IS NULL OR status = $1);

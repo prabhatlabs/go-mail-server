@@ -22,6 +22,18 @@ func (q *Queries) CheckIdempotency(ctx context.Context, idempotencyKey pgtype.Te
 	return id, err
 }
 
+const countJobs = `-- name: CountJobs :one
+SELECT COUNT(*) FROM email_jobs
+WHERE ($1::text IS NULL OR status = $1)
+`
+
+func (q *Queries) CountJobs(ctx context.Context, dollar_1 string) (int64, error) {
+	row := q.db.QueryRow(ctx, countJobs, dollar_1)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const dequeueJob = `-- name: DequeueJob :one
 UPDATE email_jobs
 SET status = 'processing', locked_at = now(), updated_at = now()
@@ -162,6 +174,56 @@ func (q *Queries) GetJob(ctx context.Context, id pgtype.UUID) (EmailJob, error) 
 		&i.SentAt,
 	)
 	return i, err
+}
+
+const listJobs = `-- name: ListJobs :many
+SELECT id, idempotency_key, from_email, to_email, subject, body, status, priority, attempt_count, max_attempts, next_retry_at, locked_at, last_error, created_at, updated_at, sent_at FROM email_jobs
+WHERE ($1::text IS NULL OR status = $1)
+ORDER BY created_at DESC
+LIMIT $2 OFFSET $3
+`
+
+type ListJobsParams struct {
+	Column1 string `json:"column_1"`
+	Limit   int32  `json:"limit"`
+	Offset  int32  `json:"offset"`
+}
+
+func (q *Queries) ListJobs(ctx context.Context, arg ListJobsParams) ([]EmailJob, error) {
+	rows, err := q.db.Query(ctx, listJobs, arg.Column1, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []EmailJob
+	for rows.Next() {
+		var i EmailJob
+		if err := rows.Scan(
+			&i.ID,
+			&i.IdempotencyKey,
+			&i.FromEmail,
+			&i.ToEmail,
+			&i.Subject,
+			&i.Body,
+			&i.Status,
+			&i.Priority,
+			&i.AttemptCount,
+			&i.MaxAttempts,
+			&i.NextRetryAt,
+			&i.LockedAt,
+			&i.LastError,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.SentAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const markDeadLetter = `-- name: MarkDeadLetter :exec
