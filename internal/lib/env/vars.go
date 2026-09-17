@@ -13,6 +13,7 @@ type EnvsType struct {
 	EMAIL_PORT   string
 	EMAIL_USER   string
 	EMAIL_PASS   string
+	ACCESS_CODE  string
 }
 
 var Vars *EnvsType
@@ -35,6 +36,7 @@ func LoadEnv() error {
 		"EMAIL_PORT",
 		"EMAIL_USER",
 		"EMAIL_PASS",
+		"ACCESS_CODE",
 	}
 
 	var enverr []string
@@ -57,13 +59,14 @@ func LoadEnv() error {
 		EMAIL_PORT:   viper.GetString("EMAIL_PORT"),
 		EMAIL_USER:   viper.GetString("EMAIL_USER"),
 		EMAIL_PASS:   viper.GetString("EMAIL_PASS"),
+		ACCESS_CODE:  viper.GetString("ACCESS_CODE"),
 	}
 
 	if envs.ENV == "" {
 		envs.ENV = "dev"
 	}
 
-	Vars = Vars
+	Vars = envs
 	return nil
 }
 
